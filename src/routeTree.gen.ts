@@ -10,33 +10,87 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRistorantiRouteImport } from './routes/_authenticated/ristoranti'
+import { Route as AuthenticatedDashboardRestaurantIdRouteImport } from './routes/_authenticated/dashboard.$restaurantId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRistorantiRoute = AuthenticatedRistorantiRouteImport.update({
+  id: '/ristoranti',
+  path: '/ristoranti',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRestaurantIdRoute =
+  AuthenticatedDashboardRestaurantIdRouteImport.update({
+    id: '/dashboard/$restaurantId',
+    path: '/dashboard/$restaurantId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/ristoranti': typeof AuthenticatedRistorantiRoute
+  '/dashboard/$restaurantId': typeof AuthenticatedDashboardRestaurantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/ristoranti': typeof AuthenticatedRistorantiRoute
+  '/dashboard/$restaurantId': typeof AuthenticatedDashboardRestaurantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/login': typeof LoginRoute
+  '/_authenticated/ristoranti': typeof AuthenticatedRistorantiRoute
+  '/_authenticated/dashboard/$restaurantId': typeof AuthenticatedDashboardRestaurantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/auth' | '/login' | '/ristoranti' | '/dashboard/$restaurantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/auth' | '/login' | '/ristoranti' | '/dashboard/$restaurantId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/login'
+    | '/_authenticated/ristoranti'
+    | '/_authenticated/dashboard/$restaurantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  LoginRoute: typeof LoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +102,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/ristoranti': {
+      id: '/_authenticated/ristoranti'
+      path: '/ristoranti'
+      fullPath: '/ristoranti'
+      preLoaderRoute: typeof AuthenticatedRistorantiRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/$restaurantId': {
+      id: '/_authenticated/dashboard/$restaurantId'
+      path: '/dashboard/$restaurantId'
+      fullPath: '/dashboard/$restaurantId'
+      preLoaderRoute: typeof AuthenticatedDashboardRestaurantIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedRistorantiRoute: typeof AuthenticatedRistorantiRoute
+  AuthenticatedDashboardRestaurantIdRoute: typeof AuthenticatedDashboardRestaurantIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedRistorantiRoute: AuthenticatedRistorantiRoute,
+  AuthenticatedDashboardRestaurantIdRoute:
+    AuthenticatedDashboardRestaurantIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
